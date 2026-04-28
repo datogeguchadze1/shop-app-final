@@ -14,7 +14,7 @@ export class AdminService {
   constructor(private http: HttpClient) {}
 
   // ── Auth ──────────────────────────────────────────────
-  login(email: string, password: string): Observable<{ token: string }> {
+ login (email: string, password: string): Observable<{ token: string }> {
     return this.http.post<any>(`${this.base}/login`, { email, password }).pipe(
       map(raw => {
         const inner = raw?.data ?? raw;
