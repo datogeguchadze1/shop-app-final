@@ -1,0 +1,31 @@
+<div class="card" (click)="goToProduct()">
+  <div class="card-img">
+    <img [src]="product.imageUrl || 'assets/placeholder.png'" [alt]="product.name" loading="lazy">
+    <div class="card-actions">
+      <button class="icon-btn" (click)="onFav($event)" [class.active]="isFav" title="Favorite">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </button>
+      <button class="icon-btn cart-btn" (click)="onCart($event)" title="Add to cart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+      </button>
+    </div>
+    <div class="badge" *ngIf="product.salePrice">SALE</div>
+  </div>
+  <div class="card-body">
+    <p class="category">{{ product.categoryName || product.category?.name }}</p>
+    <h3 class="name">{{ product.name }}</h3>
+    <div class="price-row">
+      <span class="price" [class.original]="product.salePrice">{{ product.price | currency }}</span>
+      <span class="sale-price" *ngIf="product.salePrice">{{ product.salePrice | currency }}</span>
+    </div>
+    <div class="rating" *ngIf="product.rating">
+      <span class="stars">{{ starsArray }}</span>
+      <span class="count">({{ product.reviewCount || 0 }})</span>
+    </div>
+  </div>
+</div>

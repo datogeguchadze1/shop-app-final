@@ -1,0 +1,70 @@
+<div class="toast-overlay" *ngIf="toast()">{{ toast() }}</div>
+
+<div class="page">
+  <h1>Shopping Cart</h1>
+
+  <app-loader *ngIf="loading()"></app-loader>
+
+  <div class="empty" *ngIf="!loading() && (!cart() || cart()!.items.length === 0)">
+    <div class="empty-icon">🛒</div>
+    <p>Your cart is empty</p>
+    <a routerLink="/products" class="btn-shop">Start Shopping</a>
+  </div>
+
+  <div class="cart-layout" *ngIf="!loading() && cart() && cart()!.items.length > 0">
+    <div class="cart-items">
+      <div class="cart-item" *ngFor="let item of cart()!.items">
+        <div class="item-img">
+          <img [src]="item.productImage || 'assets/placeholder.png'" [alt]="item.productName">
+        </div>
+        <div class="item-info">
+          <h3>{{ item.productName }}</h3>
+          <p class="item-price">{{ item.price | currency }}</p>
+        </div>
+        <div class="item-qty">
+          <button (click)="updateQty(item, item.quantity - 1)" [disabled]="item.quantity <= 1">−</button>
+          <span>{{ item.quantity }}</span>
+          <button (click)="updateQty(item, item.quantity + 1)">+</button>
+        </div>
+        <div class="item-total">{{ item.totalPrice | currency }}</div>
+        <button class="remove-btn" (click)="removeItem(item)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14H6L5 6"/>
+            <path d="M10 11v6"/>
+            <path d="M14 11v6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="order-summary">
+      <h2>Order Summary</h2>
+      <div class="summary-row"><span>Subtotal</span><span>{{ cart()!.totalPrice | currency }}</span></div>
+      <div class="summary-row"><span>Shipping</span><span class="free">Free</span></div>
+      <div class="summary-row total"><span>Total</span><span>{{ cart()!.totalPrice | currency }}</span></div>
+      <button class="btn-checkout" (click)="checkoutOpen.set(true)">Proceed to Checkout</button>
+    </div>
+  </div>
+
+  <!-- Checkout modal -->
+  <app-modal [open]="checkoutOpen()" title="Checkout" (close)="checkoutOpen.set(false)">
+    <div class="checkout-form">
+      <div class="field">
+        <label>Delivery Address</label>
+        <input type="text" [(ngModel)]="address" placeholder="123 Main St, City" />
+      </div>
+      <div class="field">
+        <label>Payment Method</label>
+        <select [(ngModel)]="paymentMethod">
+          <option value="card">Credit Card</option>
+          <option value="cash">Cash on Delivery</option>
+        </select>
+      </div>
+      <div class="success-msg" *ngIf="checkoutSuccess()">🎉 Order placed successfully!</div>
+      <button class="btn-confirm" (click)="placeOrder()" [disabled]="checkoutLoading()">
+        {{ checkoutLoading() ? 'Processing…' : 'Place Order' }}
+      </button>
+    </div>
+  </app-modal>
+</div>

@@ -1,0 +1,35 @@
+<div class="toast-overlay" *ngIf="toast()">{{ toast() }}</div>
+<div class="page">
+      <h1>My Favorites</h1>
+
+      <app-loader *ngIf="loading()"></app-loader>
+
+      <div class="empty" *ngIf="!loading() && favorites().length === 0">
+        <div class="empty-icon">♡</div>
+        <p>No favorites yet</p>
+        <a routerLink="/products" class="btn-shop">Discover Products</a>
+      </div>
+
+      <div class="grid" *ngIf="!loading() && favorites().length > 0">
+        <div class="fav-card" *ngFor="let item of favorites()">
+          <a [routerLink]="['/products', item.productId]" class="card-link">
+            <div class="card-img">
+              <img [src]="item.productImage || 'assets/placeholder.png'" [alt]="item.productName">
+            </div>
+            <div class="card-body">
+              <h3>{{ item.productName }}</h3>
+              <div class="prices">
+                <span class="price" [class.crossed]="item.salePrice">{{ item.price | currency }}</span>
+                <span class="sale" *ngIf="item.salePrice">{{ item.salePrice | currency }}</span>
+              </div>
+            </div>
+          </a>
+          <div class="card-actions">
+            <button class="btn-cart" (click)="addToCart(item.productId)">Add to Cart</button>
+            <button class="btn-remove" (click)="remove(item.productId)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>

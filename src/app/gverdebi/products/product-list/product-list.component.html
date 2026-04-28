@@ -1,0 +1,97 @@
+<div class="toast-overlay" *ngIf="toast()">{{ toast() }}</div>
+
+<div class="page">
+  <div class="page-header">
+    <h1>{{ activeCategory() ? activeCategory()!.name : 'All Products' }}</h1>
+    <p class="count" *ngIf="!loading()">{{ total() }} products</p>
+  </div>
+
+  <div class="layout">
+    <!-- Sidebar filters -->
+    <aside class="sidebar" [class.open]="sidebarOpen()">
+      <div class="sidebar-header">
+        <h3>Filters</h3>
+        <button class="close-btn" (click)="sidebarOpen.set(false)">✕</button>
+      </div>
+
+      <div class="filter-section">
+        <h4>Categories</h4>
+        <div class="cat-list">
+          <button class="cat-btn" [class.active]="!selectedCategoryId()" (click)="selectCategory(null)">All</button>
+          <button
+            *ngFor="let c of categories()"
+            class="cat-btn"
+            [class.active]="selectedCategoryId() === c.id"
+            (click)="selectCategory(c.id)"
+          >{{ c.name }}</button>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <h4>Price Range</h4>
+        <div class="price-inputs">
+          <input
+            type="number"
+            [(ngModel)]="minPriceStr"
+            placeholder="Min"
+            (keyup.enter)="applyFilters()"
+            min="0"
+          />
+          <span>—</span>
+          <input
+            type="number"
+            [(ngModel)]="maxPriceStr"
+            placeholder="Max"
+            (keyup.enter)="applyFilters()"
+            min="0"
+          />
+        </div>
+        <button class="apply-btn" (click)="applyFilters()">Apply</button>
+      </div>
+    </aside>
+
+    <div class="content">
+      <div class="toolbar">
+        <button class="filter-toggle" (click)="sidebarOpen.set(true)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+            <line x1="11" y1="18" x2="13" y2="18"/>
+          </svg>
+          Filters
+        </button>
+        <div class="sort-wrap">
+          <select [(ngModel)]="sortOrder" (change)="onSortChange()">
+            <option value="">Sort by</option>
+            <option value="price_asc">Price: Low → High</option>
+            <option value="price_desc">Price: High → Low</option>
+          </select>
+        </div>
+      </div>
+
+      <app-loader *ngIf="loading()"></app-loader>
+
+      <div class="error-msg" *ngIf="error()">{{ error() }}</div>
+
+      <div class="grid" *ngIf="!loading()">
+        <app-product-card
+          *ngFor="let p of products()"
+          [product]="p"
+          [isFav]="favoriteIds().has(p.id)"
+          (addToCart)="onAddToCart($event)"
+          (toggleFav)="onToggleFav($event)"
+        ></app-product-card>
+      </div>
+
+      <div class="empty" *ngIf="!loading() && products().length === 0">
+        <p>No products found.</p>
+      </div>
+
+      <div class="pagination" *ngIf="totalPages() > 1">
+        <button [disabled]="page() <= 1" (click)="goPage(page()-1)">‹</button>
+        <span>{{ page() }} / {{ totalPages() }}</span>
+        <button [disabled]="page() >= totalPages()" (click)="goPage(page()+1)">›</button>
+      </div>
+    </div>
+  </div>
+</div>

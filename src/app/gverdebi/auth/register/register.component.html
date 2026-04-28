@@ -1,0 +1,137 @@
+<div class="auth-page">
+  <div class="auth-card">
+
+    <!-- ── Step indicator ── -->
+    <div class="steps">
+      <div class="step" [class.active]="step() === 'form'" [class.done]="step() === 'verify' || step() === 'done'">
+        <div class="step-dot">{{ (step() === 'verify' || step() === 'done') ? '✓' : '1' }}</div>
+        <span>Details</span>
+      </div>
+      <div class="step-line" [class.done]="step() === 'verify' || step() === 'done'"></div>
+      <div class="step" [class.active]="step() === 'verify'" [class.done]="step() === 'done'">
+        <div class="step-dot">{{ step() === 'done' ? '✓' : '2' }}</div>
+        <span>Verify</span>
+      </div>
+      <div class="step-line" [class.done]="step() === 'done'"></div>
+      <div class="step" [class.active]="step() === 'done'">
+        <div class="step-dot">3</div>
+        <span>Done</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         STEP 1 — Registration form
+    ══════════════════════════════════════════════════ -->
+    <div *ngIf="step() === 'form'">
+      <div class="auth-header">
+        <span class="logo-icon">◈</span>
+        <h1>Create Account</h1>
+        <p>Join the LUXE community</p>
+      </div>
+
+      <div class="error-msg" *ngIf="error()">{{ error() }}</div>
+
+      <div class="auth-form">
+        <div class="row-2">
+          <div class="field">
+            <label>First Name</label>
+            <input type="text" [(ngModel)]="firstName" placeholder="John" autocomplete="given-name" />
+          </div>
+          <div class="field">
+            <label>Last Name</label>
+            <input type="text" [(ngModel)]="lastName" placeholder="Doe" autocomplete="family-name" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Email</label>
+          <input type="email" [(ngModel)]="email" placeholder="you@example.com" autocomplete="email" />
+        </div>
+
+        <div class="field">
+          <label>Password</label>
+          <div class="input-wrap">
+            <input [type]="showPw ? 'text' : 'password'" [(ngModel)]="password"
+                   placeholder="Min. 6 characters" autocomplete="new-password" />
+            <button type="button" class="eye-btn" (click)="showPw = !showPw">
+              {{ showPw ? '🙈' : '👁' }}
+            </button>
+          </div>
+          <div class="pw-hint" *ngIf="password.length > 0 && password.length < 6">
+            At least 6 characters required
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Confirm Password</label>
+          <div class="input-wrap">
+            <input [type]="showConfirm ? 'text' : 'password'" [(ngModel)]="confirmPw"
+                   placeholder="Repeat your password" autocomplete="new-password"
+                   [class.mismatch]="!pwMatch" />
+            <button type="button" class="eye-btn" (click)="showConfirm = !showConfirm">
+              {{ showConfirm ? '🙈' : '👁' }}
+            </button>
+          </div>
+          <div class="pw-hint error" *ngIf="!pwMatch">Passwords do not match</div>
+        </div>
+
+        <button class="btn-primary" (click)="submit()" [disabled]="loading() || !formValid">
+          <span class="spinner" *ngIf="loading()"></span>
+          <span *ngIf="!loading()">Create Account →</span>
+        </button>
+
+        <p class="auth-footer">Already have an account? <a routerLink="/auth/login">Sign In</a></p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         STEP 2 — Email verification
+    ══════════════════════════════════════════════════ -->
+    <div *ngIf="step() === 'verify'" class="verify-panel">
+      <div class="verify-icon">📧</div>
+      <h2>Check your email</h2>
+      <p class="verify-sub">
+        We sent a verification code to<br/>
+        <strong>{{ email }}</strong>
+      </p>
+
+      <div class="error-msg" *ngIf="error()">{{ error() }}</div>
+
+      <div class="field">
+        <label>Verification Code</label>
+        <input
+          class="code-input"
+          type="text"
+          [(ngModel)]="verifyCode"
+          placeholder="Enter code from email"
+          (keyup.enter)="verify()"
+          maxlength="10"
+          autocomplete="one-time-code"
+        />
+      </div>
+
+      <button class="btn-primary" (click)="verify()" [disabled]="loading() || !verifyCode.trim()">
+        <span class="spinner" *ngIf="loading()"></span>
+        <span *ngIf="!loading()">Verify Email ✓</span>
+      </button>
+
+      <div class="resend-row">
+        <span>Didn't receive it?</span>
+        <button class="resend-btn" (click)="resend()" [disabled]="resendCooldown() > 0">
+          {{ resendCooldown() > 0 ? 'Resend in ' + resendCooldown() + 's' : 'Resend Code' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         STEP 3 — Success
+    ══════════════════════════════════════════════════ -->
+    <div *ngIf="step() === 'done'" class="done-panel">
+      <div class="done-icon">🎉</div>
+      <h2>You're all set!</h2>
+      <p>Your account has been verified. You can now sign in.</p>
+      <button class="btn-primary" (click)="goLogin()">Go to Login →</button>
+    </div>
+
+  </div>
+</div>

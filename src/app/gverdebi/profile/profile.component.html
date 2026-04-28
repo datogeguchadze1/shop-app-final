@@ -1,0 +1,163 @@
+<div class="page">
+  <app-loader *ngIf="loading()"></app-loader>
+
+  <div class="no-user" *ngIf="!loading() && !user()">
+    <p>Failed to load profile. <a routerLink="/auth/login">Please login again.</a></p>
+  </div>
+
+  <div class="profile-layout" *ngIf="!loading() && user()">
+
+    <!-- ── Sidebar ── -->
+    <aside class="profile-sidebar">
+      <div class="avatar-section">
+        <div class="big-avatar" [style.backgroundImage]="user()!.profileImage ? 'url(' + user()!.profileImage + ')' : 'none'">
+          <span *ngIf="!user()!.profileImage">{{ initials }}</span>
+        </div>
+        <h2>{{ user()!.firstName }} {{ user()!.lastName }}</h2>
+        <p class="email-label">{{ user()!.email }}</p>
+        <span class="role-badge" *ngIf="user()!.role">{{ user()!.role }}</span>
+      </div>
+      <nav class="side-nav">
+        <button [class.active]="tab() === 'profile'"  (click)="tab.set('profile')">
+          <span class="nav-icon">👤</span> Profile Info
+        </button>
+        <button [class.active]="tab() === 'password'" (click)="tab.set('password')">
+          <span class="nav-icon">🔒</span> Password
+        </button>
+        <button [class.active]="tab() === 'danger'"   (click)="tab.set('danger')" class="danger-tab">
+          <span class="nav-icon">⚠️</span> Danger Zone
+        </button>
+      </nav>
+    </aside>
+
+    <!-- ── Content ── -->
+    <div class="profile-content">
+
+      <!-- Profile Info tab -->
+      <div *ngIf="tab() === 'profile'" class="tab-panel">
+        <div class="tab-header">
+          <h2>Profile Information</h2>
+          <p>Update your personal details</p>
+        </div>
+
+        <div class="success-msg" *ngIf="profileSuccess()">✓ Profile updated successfully!</div>
+        <div class="error-msg"   *ngIf="profileError()">{{ profileError() }}</div>
+
+        <div class="form">
+          <div class="row-2">
+            <div class="field">
+              <label>First Name</label>
+              <input type="text" [(ngModel)]="firstName" placeholder="John" />
+            </div>
+            <div class="field">
+              <label>Last Name</label>
+              <input type="text" [(ngModel)]="lastName" placeholder="Doe" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="email" placeholder="you@example.com" />
+          </div>
+          <div class="field">
+            <label>Phone Number</label>
+            <input type="tel" [(ngModel)]="phoneNumber" placeholder="+1 234 567 8900" />
+          </div>
+          <div class="field">
+            <label>Address</label>
+            <input type="text" [(ngModel)]="address" placeholder="123 Main St, City" />
+          </div>
+          <div class="field">
+            <label>Date of Birth</label>
+            <input type="date" [(ngModel)]="dob" />
+          </div>
+          <div class="form-footer">
+            <button class="btn-save" (click)="updateProfile()" [disabled]="saving()">
+              <span class="spinner" *ngIf="saving()"></span>
+              <span *ngIf="!saving()">Save Changes</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Password tab -->
+      <div *ngIf="tab() === 'password'" class="tab-panel">
+        <div class="tab-header">
+          <h2>Change Password</h2>
+          <p>Make sure it's at least 6 characters</p>
+        </div>
+
+        <div class="success-msg" *ngIf="pwSuccess()">✓ Password changed successfully!</div>
+        <div class="error-msg"   *ngIf="pwError()">{{ pwError() }}</div>
+
+        <div class="form">
+          <div class="field">
+            <label>Current Password</label>
+            <div class="input-wrap">
+              <input [type]="showCurrent ? 'text' : 'password'" [(ngModel)]="currentPw" placeholder="••••••••" />
+              <button type="button" class="eye-btn" (click)="showCurrent = !showCurrent">{{ showCurrent ? '🙈' : '👁' }}</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>New Password</label>
+            <div class="input-wrap">
+              <input [type]="showNew ? 'text' : 'password'" [(ngModel)]="newPw" placeholder="Min. 6 characters" />
+              <button type="button" class="eye-btn" (click)="showNew = !showNew">{{ showNew ? '🙈' : '👁' }}</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Confirm New Password</label>
+            <div class="input-wrap">
+              <input [type]="showConfirm ? 'text' : 'password'" [(ngModel)]="confirmPw" placeholder="Repeat new password"
+                     [class.mismatch]="confirmPw && newPw !== confirmPw" />
+              <button type="button" class="eye-btn" (click)="showConfirm = !showConfirm">{{ showConfirm ? '🙈' : '👁' }}</button>
+            </div>
+            <div class="hint error" *ngIf="confirmPw && newPw !== confirmPw">Passwords do not match</div>
+          </div>
+          <div class="form-footer">
+            <button class="btn-save" (click)="changePassword()" [disabled]="saving()">
+              <span class="spinner" *ngIf="saving()"></span>
+              <span *ngIf="!saving()">Update Password</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Danger Zone tab -->
+      <div *ngIf="tab() === 'danger'" class="tab-panel">
+        <div class="tab-header">
+          <h2>Danger Zone</h2>
+          <p>Irreversible actions — proceed with caution</p>
+        </div>
+
+        <div class="danger-card">
+          <div class="danger-info">
+            <h3>Delete Account</h3>
+            <p>Permanently delete your account and all associated data. This cannot be undone.</p>
+          </div>
+          <button class="btn-danger" (click)="deleteOpen.set(true)">Delete Account</button>
+        </div>
+
+        <div class="danger-card logout-card">
+          <div class="danger-info">
+            <h3>Sign Out</h3>
+            <p>Log out of your current session.</p>
+          </div>
+          <button class="btn-logout" (click)="auth.logout()">Sign Out</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Delete confirm modal -->
+  <app-modal [open]="deleteOpen()" title="Delete Account" (close)="deleteOpen.set(false)">
+    <p style="color:var(--text-muted);font-size:14px;margin:0 0 20px;line-height:1.6">
+      Are you sure you want to delete your account?<br/>
+      <strong>This action is irreversible.</strong>
+    </p>
+    <div style="display:flex;gap:10px">
+      <button class="btn-confirm-del" (click)="deleteAccount()">Yes, Delete</button>
+      <button class="btn-cancel" (click)="deleteOpen.set(false)">Cancel</button>
+    </div>
+  </app-modal>
+</div>

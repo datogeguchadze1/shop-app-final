@@ -1,0 +1,30 @@
+<div class="auth-page">
+      <div class="auth-card">
+        <div class="auth-header">
+          <span class="logo-icon">◈</span>
+          <h1>Welcome back</h1>
+          <p>Sign in to your LUXE account</p>
+        </div>
+
+        <form (ngSubmit)="submit()" class="auth-form">
+          <div class="field">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="email" name="email" placeholder="you@email.com" required />
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input [type]="showPw ? 'text' : 'password'" [(ngModel)]="password" name="password" placeholder="••••••••" required />
+            <button type="button" class="pw-toggle" (click)="showPw=!showPw">{{ showPw ? 'Hide' : 'Show' }}</button>
+          </div>
+
+          <div class="error-msg" *ngIf="error()">{{ error() }}</div>
+
+          <button type="submit" class="btn-primary" [disabled]="loading()">
+            <app-loader *ngIf="loading()"></app-loader>
+            <span *ngIf="!loading()">Sign In</span>
+          </button>
+        </form>
+
+        <p class="auth-footer">Don't have an account? <a routerLink="/auth/register">Register</a></p>
+      </div>
+    </div>

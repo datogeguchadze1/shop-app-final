@@ -1,0 +1,11 @@
+.loader-wrap { display:flex; justify-content:center; align-items:center; padding:3rem; }
+    .loader-wrap.overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:9999; }
+    .spinner { display:flex; gap:6px; align-items:center; }
+    .spinner div {
+      width:10px; height:10px; border-radius:50%;
+      background:var(--accent);
+      animation:bounce 0.6s infinite alternate;
+    }
+    .spinner div:nth-child(2) { animation-delay:0.2s; }
+    .spinner div:nth-child(3) { animation-delay:0.4s; }
+    @keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-12px)} }

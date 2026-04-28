@@ -1,0 +1,7 @@
+<div class="modal-backdrop" *ngIf="open" (click)="close.emit()">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+        <button class="modal-close" (click)="close.emit()">✕</button>
+        <h2 *ngIf="title">{{ title }}</h2>
+        <ng-content></ng-content>
+      </div>
+    </div>

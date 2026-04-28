@@ -1,0 +1,201 @@
+<!-- Toast -->
+<div class="toast" *ngIf="toast()">{{ toast() }}</div>
+
+<!-- Confirm Modal -->
+<div class="overlay" *ngIf="confirmDelete()">
+  <div class="confirm-box">
+    <h3>Delete {{ confirmDelete()!.type }}</h3>
+    <p>Delete <strong>{{ confirmDelete()!.name }}</strong>? This cannot be undone.</p>
+    <div class="confirm-actions">
+      <button class="btn-cancel" (click)="confirmDelete.set(null)">Cancel</button>
+      <button class="btn-danger" (click)="confirmDoDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Form Modal -->
+<div class="overlay" *ngIf="showProdForm()">
+  <div class="form-modal">
+    <div class="modal-header">
+      <h3>{{ editingProd() ? 'Edit Product' : 'New Product' }}</h3>
+      <button class="close-btn" (click)="showProdForm.set(false)">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="field full">
+        <label>Product Name *</label>
+        <input type="text" [(ngModel)]="prodForm.name" placeholder="Product name" />
+      </div>
+      <div class="field">
+        <label>Price *</label>
+        <input type="number" [(ngModel)]="prodForm.price" placeholder="0.00" min="0" />
+      </div>
+      <div class="field">
+        <label>Sale Price</label>
+        <input type="number" [(ngModel)]="prodForm.salePrice" placeholder="Optional" min="0" />
+      </div>
+      <div class="field">
+        <label>Stock *</label>
+        <input type="number" [(ngModel)]="prodForm.stock" placeholder="0" min="0" />
+      </div>
+      <div class="field">
+        <label>Brand</label>
+        <input type="text" [(ngModel)]="prodForm.brand" placeholder="Brand" />
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select [(ngModel)]="prodForm.categoryId">
+          <option value="">— Select —</option>
+          <option *ngFor="let c of categories()" [value]="c.id">{{ c.name }}</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label>Image URL</label>
+        <input type="text" [(ngModel)]="prodForm.imageUrl" placeholder="https://…" />
+      </div>
+      <div class="field full">
+        <label>Description</label>
+        <textarea [(ngModel)]="prodForm.description" rows="3" placeholder="Product description"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showProdForm.set(false)">Cancel</button>
+      <button class="btn-primary" (click)="saveProd()">
+        {{ editingProd() ? 'Update' : 'Create' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Category Form Modal -->
+<div class="overlay" *ngIf="showCatForm()">
+  <div class="form-modal small">
+    <div class="modal-header">
+      <h3>{{ editingCat() ? 'Edit Category' : 'New Category' }}</h3>
+      <button class="close-btn" (click)="showCatForm.set(false)">✕</button>
+    </div>
+    <div class="field">
+      <label>Name *</label>
+      <input type="text" [(ngModel)]="catForm.name" placeholder="Category name" />
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea [(ngModel)]="catForm.description" rows="2" placeholder="Optional description"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showCatForm.set(false)">Cancel</button>
+      <button class="btn-primary" (click)="saveCat()">
+        {{ editingCat() ? 'Update' : 'Create' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Main Layout -->
+<div class="admin-wrap">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">⚙️ Admin</div>
+    <nav>
+      <button class="nav-item" [class.active]="tab() === 'products'" (click)="tab.set('products')">
+        <span class="nav-icon">📦</span> Products
+      </button>
+      <button class="nav-item" [class.active]="tab() === 'categories'" (click)="tab.set('categories')">
+        <span class="nav-icon">🏷️</span> Categories
+      </button>
+    </nav>
+    <button class="logout-btn" (click)="logout()">
+      <span>⬅</span> Logout
+    </button>
+  </aside>
+
+  <!-- Content -->
+  <main class="content">
+
+    <!-- ── Products Tab ── -->
+    <div *ngIf="tab() === 'products'">
+      <div class="page-header">
+        <div>
+          <h1>Products</h1>
+          <p class="sub">{{ prodTotal() }} total</p>
+        </div>
+        <button class="btn-primary" (click)="openProdCreate()">+ Add Product</button>
+      </div>
+
+      <div class="toolbar">
+        <input class="search-input" type="text" [(ngModel)]="prodSearch" placeholder="🔍  Search products…" />
+      </div>
+
+      <div class="loading" *ngIf="prodLoad()">Loading…</div>
+
+      <div class="table-wrap" *ngIf="!prodLoad()">
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of filteredProducts">
+              <td><img class="thumb" [src]="p.imageUrl || '/placeholder.png'" [alt]="p.name" /></td>
+              <td class="prod-name">{{ p.name }}</td>
+              <td><span class="badge">{{ p.categoryName || p.category?.name || '—' }}</span></td>
+              <td>
+                <span class="price">{{ p.price | currency }}</span>
+                <span class="sale-price" *ngIf="p.salePrice"> → {{ p.salePrice | currency }}</span>
+              </td>
+              <td>
+                <span class="stock" [class.low]="(p.stock ?? 0) < 5">{{ p.stock ?? 0 }}</span>
+              </td>
+              <td class="actions">
+                <button class="btn-edit" (click)="openProdEdit(p)">✏️ Edit</button>
+                <button class="btn-del"  (click)="askDeleteProd(p)">🗑 Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="empty-row" *ngIf="filteredProducts.length === 0">No products found.</div>
+
+        <div class="pagination" *ngIf="prodPages() > 1">
+          <button [disabled]="prodPage() <= 1" (click)="goPage(prodPage()-1)">‹ Prev</button>
+          <span>Page {{ prodPage() }} / {{ prodPages() }}</span>
+          <button [disabled]="prodPage() >= prodPages()" (click)="goPage(prodPage()+1)">Next ›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Categories Tab ── -->
+    <div *ngIf="tab() === 'categories'">
+      <div class="page-header">
+        <div>
+          <h1>Categories</h1>
+          <p class="sub">{{ categories().length }} total</p>
+        </div>
+        <button class="btn-primary" (click)="openCatCreate()">+ Add Category</button>
+      </div>
+
+      <div class="loading" *ngIf="catLoad()">Loading…</div>
+
+      <div class="cat-grid" *ngIf="!catLoad()">
+        <div class="cat-card" *ngFor="let c of categories()">
+          <div class="cat-info">
+            <h3>{{ c.name }}</h3>
+            <p>{{ c.description || 'No description' }}</p>
+            <span class="prod-count">{{ c.productCount ?? 0 }} products</span>
+          </div>
+          <div class="cat-actions">
+            <button class="btn-edit" (click)="openCatEdit(c)">✏️ Edit</button>
+            <button class="btn-del"  (click)="askDeleteCat(c)">🗑 Delete</button>
+          </div>
+        </div>
+        <div class="empty-row" *ngIf="categories().length === 0">No categories found.</div>
+      </div>
+    </div>
+
+  </main>
+</div>

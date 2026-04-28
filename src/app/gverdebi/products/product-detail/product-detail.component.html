@@ -1,0 +1,139 @@
+<!-- Loading state -->
+    <div class="page-loader" *ngIf="loading()">
+      <app-loader></app-loader>
+    </div>
+
+    <!-- Error state -->
+    <div class="page-error" *ngIf="!loading() && error()">
+      <p>{{ error() }}</p>
+      <a routerLink="/products">← Back to products</a>
+    </div>
+
+    <!-- Content -->
+    <div class="page" *ngIf="!loading() && !error() && product() as p">
+      <div class="breadcrumb">
+        <a routerLink="/products">Products</a>
+        <span>›</span>
+        <span>{{ p.name }}</span>
+      </div>
+
+      <div class="product-layout">
+        <!-- Gallery -->
+        <div class="gallery">
+          <div class="main-img">
+            <img
+              [src]="selectedImg() || p.imageUrl || '/placeholder.png'"
+              [alt]="p.name"
+              (error)="onImgError($event)"
+            >
+          </div>
+          <div class="thumbs" *ngIf="p.images && p.images.length > 1">
+            <img
+              *ngFor="let img of p.images"
+              [src]="img"
+              [class.active]="selectedImg() === img"
+              (click)="selectedImg.set(img)"
+              (error)="onImgError($event)"
+            />
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="product-info">
+          <div class="badges">
+            <span class="badge cat" *ngIf="p.categoryName || p.category?.name">
+              {{ p.categoryName || p.category?.name }}
+            </span>
+            <span class="badge brand" *ngIf="p.brand">{{ p.brand }}</span>
+          </div>
+
+          <h1>{{ p.name }}</h1>
+          <p class="model" *ngIf="p.model">Model: {{ p.model }}</p>
+
+          <div class="rating-row" *ngIf="p.rating && p.rating > 0">
+            <span class="stars">{{ stars(p.rating) }}</span>
+            <span class="rating-val">{{ p.rating | number:'1.1-1' }}</span>
+            <span class="review-count">({{ reviews().length }} reviews)</span>
+          </div>
+
+          <div class="price-row">
+            <span class="price">{{ p.price | currency }}</span>
+          </div>
+
+          <p class="description" *ngIf="p.description">{{ p.description }}</p>
+
+          <div class="stock" [class.out]="(p.stock ?? 0) === 0" [class.low]="(p.stock ?? 0) > 0 && (p.stock ?? 0) < 10">
+            <span class="dot"></span>
+            <span *ngIf="(p.stock ?? 0) === 0">Out of Stock</span>
+            <span *ngIf="(p.stock ?? 0) > 0 && (p.stock ?? 0) < 10">Only {{ p.stock }} left</span>
+            <span *ngIf="(p.stock ?? 0) >= 10">In Stock ({{ p.stock }})</span>
+          </div>
+
+          <div class="qty-row">
+            <div class="qty-ctrl">
+              <button (click)="decQty()">−</button>
+              <span>{{ qty }}</span>
+              <button (click)="incQty()">+</button>
+            </div>
+            <button class="btn-cart" (click)="addToCart()" [disabled]="addingCart() || (p.stock ?? 0) === 0">
+              {{ addingCart() ? 'Adding…' : 'Add to Cart' }}
+            </button>
+            <button class="btn-fav" [class.active]="isFav()" (click)="toggleFav()" title="Favorite">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="toast" [class.success]="!toast().startsWith('Error')" [class.error]="toast().startsWith('Error')" *ngIf="toast()">{{ toast() }}</div>
+          <div class="auth-hint" *ngIf="!auth.isLoggedIn()">
+            <a routerLink="/auth/login">Login</a> to add to cart or favorites
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews -->
+      <div class="reviews-section">
+        <h2>Reviews <span *ngIf="reviews().length > 0">({{ reviews().length }})</span></h2>
+
+        <div class="review-form" *ngIf="auth.isLoggedIn()">
+          <h3>{{ editReviewId() ? 'Edit Review' : 'Write a Review' }}</h3>
+          <div class="star-picker">
+            <button *ngFor="let s of [1,2,3,4,5]" (click)="newRating = s" [class.active]="newRating >= s">★</button>
+          </div>
+          <textarea [(ngModel)]="newComment" placeholder="Share your experience…" rows="3"></textarea>
+          <div class="form-actions">
+            <button class="btn-submit" (click)="submitReview()" [disabled]="!newComment.trim()">
+              {{ editReviewId() ? 'Update' : 'Post Review' }}
+            </button>
+            <button class="btn-cancel" *ngIf="editReviewId()" (click)="cancelEdit()">Cancel</button>
+          </div>
+        </div>
+
+        <app-loader *ngIf="reviewsLoading()"></app-loader>
+
+        <div class="no-reviews" *ngIf="!reviewsLoading() && reviews().length === 0">
+          <p>No reviews yet. Be the first to review!</p>
+        </div>
+
+        <div class="reviews-list" *ngIf="!reviewsLoading()">
+          <div class="review-card" *ngFor="let r of reviews()">
+            <div class="review-header">
+              <div class="reviewer">
+                <div class="avatar">{{ (r.userName || '?').charAt(0).toUpperCase() }}</div>
+                <div>
+                  <strong>{{ r.userName || 'Anonymous' }}</strong>
+                  <p>{{ r.createdAt | date:'MMM d, yyyy' }}</p>
+                </div>
+              </div>
+              <div class="review-stars">{{ stars(r.rating) }}</div>
+            </div>
+            <p class="review-body">{{ r.comment }}</p>
+            <div class="review-actions" *ngIf="canModifyReview(r)">
+              <button (click)="startEdit(r)">Edit</button>
+              <button class="del" (click)="deleteReview(r)">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

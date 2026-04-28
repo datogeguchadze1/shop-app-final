@@ -1,0 +1,73 @@
+<div class="toast-overlay" *ngIf="toast()">{{ toast() }}</div>
+
+<!-- Hero -->
+    <section class="hero">
+      <div class="hero-content">
+        <p class="hero-sub">New Collection 2025</p>
+        <h1>Discover <em>Extraordinary</em> Products</h1>
+        <p class="hero-desc">Curated selections for the discerning shopper. Quality you can feel.</p>
+        <div class="hero-cta">
+          <a routerLink="/products" class="btn-primary">Shop Now</a>
+          <a routerLink="/products" class="btn-ghost">View All →</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-blob"></div>
+        <div class="hero-grid">
+          <div class="grid-item g1"></div>
+          <div class="grid-item g2"></div>
+          <div class="grid-item g3"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="section categories-section">
+      <div class="section-inner">
+        <div class="section-head">
+          <h2>Shop by Category</h2>
+          <a routerLink="/products" class="see-all">See all →</a>
+        </div>
+        <app-loader *ngIf="catLoading()"></app-loader>
+        <div class="cat-grid" *ngIf="!catLoading()">
+          <a
+            *ngFor="let c of categories()"
+            [routerLink]="['/products']"
+            [queryParams]="{ category: c.id }"
+            class="cat-chip"
+          >
+            <span class="cat-icon">◈</span>
+            {{ c.name }}
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured products -->
+    <section class="section">
+      <div class="section-inner">
+        <div class="section-head">
+          <h2>Featured Products</h2>
+          <a routerLink="/products" class="see-all">View all →</a>
+        </div>
+        <app-loader *ngIf="prodLoading()"></app-loader>
+        <div class="products-grid" *ngIf="!prodLoading()">
+          <app-product-card
+            *ngFor="let p of products()"
+            [product]="p"
+            [isFav]="favoriteIds().has(p.id)"
+            (addToCart)="onAddToCart($event)"
+            (toggleFav)="onToggleFav($event)"
+          ></app-product-card>
+        </div>
+      </div>
+    </section>
+
+    <!-- Banner -->
+    <section class="banner-section">
+      <div class="banner-inner">
+        <h2>Free Shipping on Orders Over $50</h2>
+        <p>Use code <strong>LUXE2025</strong> at checkout</p>
+        <a routerLink="/products" class="btn-primary">Shop Now</a>
+      </div>
+    </section>

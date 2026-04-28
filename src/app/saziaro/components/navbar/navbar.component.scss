@@ -1,0 +1,106 @@
+.navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,8,20,.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: flex; align-items: center; gap: 16px;
+      padding: 0 24px; height: 64px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none; flex-shrink: 0;
+    }
+    .logo-icon { font-size: 22px; color: var(--accent); }
+    .logo-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 700;
+      letter-spacing: 4px; color: var(--text);
+    }
+    .search-bar {
+      flex: 1; display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+      transition: border-color .2s;
+    }
+    .search-bar:focus-within { border-color: var(--accent); }
+    .search-bar input {
+      flex: 1; background: none; border: none; outline: none;
+      padding: 10px 16px; color: var(--text); font-size: 14px;
+    }
+    .search-bar input::placeholder { color: var(--text-muted); }
+    .search-submit {
+      background: none; border: none; cursor: pointer;
+      padding: 0 14px; color: var(--text-muted);
+      transition: color .2s;
+    }
+    .search-submit:hover { color: var(--accent); }
+    .search-submit svg { width: 16px; height: 16px; display: block; }
+    .nav-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .icon-btn {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: none; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); text-decoration: none;
+      transition: color .2s, background .2s;
+    }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .icon-btn:hover { color: var(--accent); background: var(--accent-soft); }
+    .cart-link { position: relative; }
+    .cart-badge {
+      position: absolute; top: 2px; right: 2px;
+      background: var(--accent); color: #fff;
+      font-size: 9px; font-weight: 700;
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .btn-login {
+      padding: 8px 18px; border-radius: 8px;
+      background: var(--accent); color: #fff;
+      text-decoration: none; font-size: 13px; font-weight: 600;
+      transition: opacity .2s;
+    }
+    .btn-login:hover { opacity: .85; }
+    .btn-logout {
+      padding: 8px 14px; border-radius: 8px;
+      background: none; border: 1px solid var(--border);
+      color: var(--text-muted); font-size: 13px; cursor: pointer;
+      transition: color .2s, border-color .2s;
+    }
+    .btn-logout:hover { color: var(--text); border-color: var(--text-muted); }
+    .mobile-search { display: none; }
+    .menu-toggle {
+      display: none; width: 38px; height: 38px;
+      background: none; border: none; cursor: pointer;
+      flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    }
+    .menu-toggle span,
+    .menu-toggle span::before,
+    .menu-toggle span::after {
+      display: block; width: 22px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: transform .3s;
+      position: relative;
+    }
+    .menu-toggle span::before { content: ''; top: -6px; position: absolute; }
+    .menu-toggle span::after { content: ''; top: 6px; position: absolute; }
+    .mobile-menu {
+      display: none; flex-direction: column;
+      padding: 12px 24px 16px; gap: 4px;
+      border-top: 1px solid var(--border);
+    }
+    .mobile-menu a {
+      padding: 10px 0; color: var(--text); text-decoration: none;
+      font-size: 15px; border-bottom: 1px solid var(--border);
+    }
+    @media (max-width: 768px) {
+      .search-bar { display: none; }
+      .search-bar.open { display: flex; position: absolute; top: 64px; left: 0; right: 0; border-radius: 0; border-left: none; border-right: none; }
+      .mobile-search { display: flex; }
+      .btn-login, .btn-logout { display: none; }
+      .menu-toggle { display: flex; }
+      .mobile-menu.open { display: flex; }
+    }

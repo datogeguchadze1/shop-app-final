@@ -1,0 +1,17 @@
+.footer { background: var(--surface); border-top: 1px solid var(--border); margin-top: auto; }
+    .footer-inner {
+      max-width: 1280px; margin: 0 auto;
+      padding: 48px 24px 32px;
+      display: flex; justify-content: space-between; gap: 32px; flex-wrap: wrap;
+    }
+    .footer-brand { display: flex; flex-direction: column; gap: 8px; }
+    .logo-icon { font-size: 20px; color: var(--accent); }
+    .logo-text { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; letter-spacing: 4px; color: var(--text); }
+    .footer-brand p { color: var(--text-muted); font-size: 13px; max-width: 200px; }
+    .footer-links { display: flex; gap: 48px; }
+    .col { display: flex; flex-direction: column; gap: 8px; }
+    .col h4 { color: var(--text); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px; }
+    .col a { color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color .2s; }
+    .col a:hover { color: var(--accent); }
+    .footer-bottom { border-top: 1px solid var(--border); text-align: center; padding: 16px; }
+    .footer-bottom p { color: var(--text-muted); font-size: 12px; margin: 0; }
