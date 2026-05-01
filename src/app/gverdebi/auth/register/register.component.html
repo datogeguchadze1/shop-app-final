@@ -1,7 +1,6 @@
 <div class="auth-page">
   <div class="auth-card">
 
-    <!-- ── Step indicator ── -->
     <div class="steps">
       <div class="step" [class.active]="step() === 'form'" [class.done]="step() === 'verify' || step() === 'done'">
         <div class="step-dot">{{ (step() === 'verify' || step() === 'done') ? '✓' : '1' }}</div>
@@ -19,9 +18,6 @@
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════
-         STEP 1 — Registration form
-    ══════════════════════════════════════════════════ -->
     <div *ngIf="step() === 'form'">
       <div class="auth-header">
         <span class="logo-icon">◈</span>
@@ -84,9 +80,6 @@
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════
-         STEP 2 — Email verification
-    ══════════════════════════════════════════════════ -->
     <div *ngIf="step() === 'verify'" class="verify-panel">
       <div class="verify-icon">📧</div>
       <h2>Check your email</h2>
@@ -123,9 +116,6 @@
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════
-         STEP 3 — Success
-    ══════════════════════════════════════════════════ -->
     <div *ngIf="step() === 'done'" class="done-panel">
       <div class="done-icon">🎉</div>
       <h2>You're all set!</h2>

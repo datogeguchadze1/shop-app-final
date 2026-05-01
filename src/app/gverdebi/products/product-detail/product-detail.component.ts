@@ -31,7 +31,6 @@ export class ProductDetailComponent implements OnInit {
 
   qty = 1; newRating = 5; newComment = '';
 
-  // Current user info for ownership check
   currentUserId    = signal<number | null>(null);
   currentUserEmail = signal<string | null>(null);
 
@@ -48,7 +47,6 @@ export class ProductDetailComponent implements OnInit {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!id) { this.error.set('Invalid product ID'); this.loading.set(false); return; }
 
-    // Load current user identity for review ownership
     if (this.auth.isLoggedIn()) {
       this.currentUserId.set(this.auth.getCurrentUserId());
       this.currentUserEmail.set(this.auth.getCurrentUserEmail());
@@ -87,8 +85,6 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
-  // Can user delete/edit this review?
-  // Show if: API says canDelete OR review belongs to current user (matched by userId or email)
   canModifyReview(r: Review): boolean {
     if (!this.auth.isLoggedIn()) return false;
     if (r.canDelete) return true;

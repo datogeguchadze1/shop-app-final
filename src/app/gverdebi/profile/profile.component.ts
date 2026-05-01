@@ -27,11 +27,9 @@ export class ProfileComponent implements OnInit {
   pwError   = signal('');
   toast     = signal('');
 
-  // Profile fields
   firstName = ''; lastName = ''; email = '';
   phoneNumber = ''; address = ''; dob = '';
 
-  // Password fields
   currentPw = ''; newPw = ''; confirmPw = '';
   showCurrent = false; showNew = false; showConfirm = false;
 

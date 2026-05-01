@@ -7,7 +7,6 @@
 
   <div class="profile-layout" *ngIf="!loading() && user()">
 
-    <!-- ── Sidebar ── -->
     <aside class="profile-sidebar">
       <div class="avatar-section">
         <div class="big-avatar" [style.backgroundImage]="user()!.profileImage ? 'url(' + user()!.profileImage + ')' : 'none'">
@@ -30,10 +29,8 @@
       </nav>
     </aside>
 
-    <!-- ── Content ── -->
     <div class="profile-content">
 
-      <!-- Profile Info tab -->
       <div *ngIf="tab() === 'profile'" class="tab-panel">
         <div class="tab-header">
           <h2>Profile Information</h2>

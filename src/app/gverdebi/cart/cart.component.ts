@@ -38,7 +38,6 @@ export class CartComponent implements OnInit {
     setTimeout(() => this.toast.set(''), 2500);
   }
 
-  // PUT /api/cart/edit-quantity  body: { itemId, quantity }
   updateQty(item: CartItem, qty: number) {
     if (qty < 1) return;
     this.cartSvc.editQuantity(item.id, qty).subscribe({
@@ -56,8 +55,6 @@ export class CartComponent implements OnInit {
     });
   }
 
-  // DELETE /api/cart/remove-from-cart/{productId}
-  // If productId fails (404), try cartItem.id as fallback
   removeItem(item: CartItem) {
     const doRemove = (id: number) => {
       this.cartSvc.removeFromCart(id).subscribe({
@@ -73,7 +70,6 @@ export class CartComponent implements OnInit {
           this.showToast('🗑 ამოიღეს კალათიდან');
         },
         error: (e) => {
-          // If productId gave 404, try with cart item id
           if (e.status === 404 && id === item.productId && item.id !== item.productId) {
             doRemove(item.id);
           } else {

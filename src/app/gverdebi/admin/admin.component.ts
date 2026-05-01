@@ -19,7 +19,6 @@ type Tab = 'products' | 'categories';
 export class AdminComponent implements OnInit {
   tab = signal<Tab>('products');
 
-  // Products
   products  = signal<Product[]>([]);
   prodLoad  = signal(true);
   prodPage  = signal(1);
@@ -30,7 +29,6 @@ export class AdminComponent implements OnInit {
   editingProd  = signal<Product | null>(null);
   prodForm: any = this.emptyProd();
 
-  // Categories
   categories = signal<Category[]>([]);
   catLoad    = signal(true);
   showCatForm = signal(false);
@@ -49,7 +47,6 @@ export class AdminComponent implements OnInit {
 
   ngOnInit() { this.loadProducts(); this.loadCategories(); }
 
-  // ── Products ────────────────────────────────────────────
   loadProducts() {
     this.prodLoad.set(true);
     this.adminSvc.getProducts(this.prodPage(), 20).subscribe({
@@ -98,7 +95,6 @@ export class AdminComponent implements OnInit {
 
   askDeleteProd(p: Product) { this.confirmDelete.set({ type: 'product', id: p.id, name: p.name }); }
 
-  // ── Categories ──────────────────────────────────────────
   loadCategories() {
     this.catLoad.set(true);
     this.catSvc.getAll().subscribe({
@@ -128,7 +124,6 @@ export class AdminComponent implements OnInit {
 
   askDeleteCat(c: Category) { this.confirmDelete.set({ type: 'category', id: c.id, name: c.name }); }
 
-  // ── Confirm delete ──────────────────────────────────────
   confirmDoDelete() {
     const d = this.confirmDelete();
     if (!d) return;
@@ -146,7 +141,6 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  // ── Pagination ──────────────────────────────────────────
   goPage(p: number) { this.prodPage.set(p); this.loadProducts(); }
 
   // ── Misc ────────────────────────────────────────────────

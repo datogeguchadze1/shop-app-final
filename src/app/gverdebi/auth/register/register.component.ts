@@ -16,11 +16,9 @@ type Step = 'form' | 'verify' | 'done';
 export class RegisterComponent {
   step = signal<Step>('form');
 
-  // Step 1 fields
   firstName = ''; lastName = ''; email = ''; password = ''; confirmPw = '';
   showPw = false; showConfirm = false;
 
-  // Step 2 fields
   verifyCode = '';
   resendCooldown = signal(0);
 
@@ -29,7 +27,6 @@ export class RegisterComponent {
 
   constructor(private auth: AuthService, private router: Router) {}
 
-  // ── Step 1: Register ──────────────────────────────────────
   get pwMatch() { return !this.confirmPw || this.password === this.confirmPw; }
   get formValid() {
     return this.firstName.trim() && this.lastName.trim()
@@ -52,7 +49,6 @@ export class RegisterComponent {
     });
   }
 
-  // ── Step 2: Verify email ──────────────────────────────────
   verify() {
     if (!this.verifyCode.trim()) return;
     this.loading.set(true); this.error.set('');

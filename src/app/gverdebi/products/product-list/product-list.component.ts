@@ -75,7 +75,6 @@ export class ProductListComponent implements OnInit {
     const catId = this.selectedCategoryId();
     const hasFilter = catId || this.minPrice !== undefined || this.maxPrice !== undefined;
 
-    // When sorting: load ALL products at once so sort covers everything, not just 1 page
     const take = this.sortOrder ? 1000 : this.pageSize;
     const page = this.sortOrder ? 1    : this.page();
 
@@ -87,12 +86,11 @@ export class ProductListComponent implements OnInit {
       next: res => {
         let items = res.items || [];
 
-        // Client-side sort (covers full dataset when sorting)
         if (this.sortOrder === 'price_asc')  items = [...items].sort((a, b) => a.price - b.price);
         if (this.sortOrder === 'price_desc') items = [...items].sort((a, b) => b.price - a.price);
 
         if (this.sortOrder) {
-          // Paginate sorted results client-side
+    
           const start = (this.page() - 1) * this.pageSize;
           const totalAll = items.length;
           this._totalPages.set(Math.ceil(totalAll / this.pageSize));

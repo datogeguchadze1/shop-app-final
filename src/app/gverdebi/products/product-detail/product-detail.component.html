@@ -1,15 +1,12 @@
-<!-- Loading state -->
     <div class="page-loader" *ngIf="loading()">
       <app-loader></app-loader>
     </div>
 
-    <!-- Error state -->
     <div class="page-error" *ngIf="!loading() && error()">
       <p>{{ error() }}</p>
       <a routerLink="/products">← Back to products</a>
     </div>
 
-    <!-- Content -->
     <div class="page" *ngIf="!loading() && !error() && product() as p">
       <div class="breadcrumb">
         <a routerLink="/products">Products</a>
@@ -18,7 +15,6 @@
       </div>
 
       <div class="product-layout">
-        <!-- Gallery -->
         <div class="gallery">
           <div class="main-img">
             <img
@@ -38,7 +34,7 @@
           </div>
         </div>
 
-        <!-- Info -->
+        
         <div class="product-info">
           <div class="badges">
             <span class="badge cat" *ngIf="p.categoryName || p.category?.name">
