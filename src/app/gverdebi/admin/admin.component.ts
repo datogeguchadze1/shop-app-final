@@ -3,7 +3,6 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AdminService } from '../../apimxare/services/admin.service';
-import { ProductService } from '../../apimxare/services/product.service';
 import { CategoryService } from '../../apimxare/services/category.service';
 import { Product, Category } from '../../apimxare/models';
 
@@ -19,28 +18,27 @@ type Tab = 'products' | 'categories';
 export class AdminComponent implements OnInit {
   tab = signal<Tab>('products');
 
-  products  = signal<Product[]>([]);
-  prodLoad  = signal(true);
-  prodPage  = signal(1);
-  prodTotal = signal(0);
-  prodPages = signal(1);
+  products   = signal<Product[]>([]);
+  prodLoad   = signal(true);
+  prodPage   = signal(1);
+  prodTotal  = signal(0);
+  prodPages  = signal(1);
   prodSearch = '';
   showProdForm = signal(false);
   editingProd  = signal<Product | null>(null);
   prodForm: any = this.emptyProd();
 
-  categories = signal<Category[]>([]);
-  catLoad    = signal(true);
+  categories  = signal<Category[]>([]);
+  catLoad     = signal(true);
   showCatForm = signal(false);
   editingCat  = signal<Category | null>(null);
   catForm: any = { name: '', description: '' };
 
-  toast = signal('');
+  toast         = signal('');
   confirmDelete = signal<{ type: string; id: number; name: string } | null>(null);
 
   constructor(
     private adminSvc: AdminService,
-    private prodSvc:  ProductService,
     private catSvc:   CategoryService,
     private router:   Router
   ) {}
@@ -51,7 +49,7 @@ export class AdminComponent implements OnInit {
     this.prodLoad.set(true);
     this.adminSvc.getProducts(this.prodPage(), 20).subscribe({
       next: raw => {
-        const p = raw?.data ?? raw;
+        const p     = raw?.data ?? raw;
         const items = p?.items ?? (Array.isArray(p) ? p : []);
         this.products.set(items);
         this.prodTotal.set(p?.totalCount ?? items.length);
@@ -78,18 +76,16 @@ export class AdminComponent implements OnInit {
   saveProd() {
     const body = {
       ...this.prodForm,
-      price: +this.prodForm.price,
-      stock: +this.prodForm.stock,
+      price:      +this.prodForm.price,
+      stock:      +this.prodForm.stock,
       categoryId: +this.prodForm.categoryId || undefined,
-      salePrice: this.prodForm.salePrice ? +this.prodForm.salePrice : undefined
+      salePrice:  this.prodForm.salePrice ? +this.prodForm.salePrice : undefined
     };
-    const ep = this.editingProd();
-    const obs = ep
-      ? this.adminSvc.updateProduct(ep.id, body)
-      : this.adminSvc.createProduct(body);
+    const ep  = this.editingProd();
+    const obs = ep ? this.adminSvc.updateProduct(ep.id, body) : this.adminSvc.createProduct(body);
     obs.subscribe({
       next: () => { this.showProdForm.set(false); this.loadProducts(); this.showToast(ep ? '✓ Product updated' : '✓ Product created'); },
-      error: e => this.showToast('❌ ' + (e?.error?.message ?? 'Failed to save'))
+      error: (e: any) => this.showToast('❌ ' + (e?.error?.message ?? 'Failed to save'))
     });
   }
 
@@ -112,13 +108,11 @@ export class AdminComponent implements OnInit {
   }
 
   saveCat() {
-    const ec = this.editingCat();
-    const obs = ec
-      ? this.adminSvc.updateCategory(ec.id, this.catForm)
-      : this.adminSvc.createCategory(this.catForm);
+    const ec  = this.editingCat();
+    const obs = ec ? this.adminSvc.updateCategory(ec.id, this.catForm) : this.adminSvc.createCategory(this.catForm);
     obs.subscribe({
       next: () => { this.showCatForm.set(false); this.loadCategories(); this.showToast(ec ? '✓ Category updated' : '✓ Category created'); },
-      error: e => this.showToast('❌ ' + (e?.error?.message ?? 'Failed to save'))
+      error: (e: any) => this.showToast('❌ ' + (e?.error?.message ?? 'Failed to save'))
     });
   }
 
@@ -134,23 +128,21 @@ export class AdminComponent implements OnInit {
       next: () => {
         this.confirmDelete.set(null);
         this.showToast('🗑 Deleted successfully');
-        if (d.type === 'product') this.loadProducts();
-        else this.loadCategories();
+        if (d.type === 'product') this.loadProducts(); else this.loadCategories();
       },
-      error: e => { this.confirmDelete.set(null); this.showToast('❌ ' + (e?.error?.message ?? 'Delete failed')); }
+      error: (e: any) => { this.confirmDelete.set(null); this.showToast('❌ ' + (e?.error?.message ?? 'Delete failed')); }
     });
   }
 
   goPage(p: number) { this.prodPage.set(p); this.loadProducts(); }
 
-  // ── Misc ────────────────────────────────────────────────
   logout() { localStorage.removeItem('admin_token'); this.router.navigate(['/admin/login']); }
 
   showToast(msg: string) { this.toast.set(msg); setTimeout(() => this.toast.set(''), 3000); }
 
   emptyProd() { return { name: '', price: '', stock: '', description: '', brand: '', categoryId: '', imageUrl: '', salePrice: '' }; }
 
-  get filteredProducts() {
+  get filteredProducts(): Product[] {
     const q = this.prodSearch.toLowerCase();
     return q ? this.products().filter(p => p.name.toLowerCase().includes(q)) : this.products();
   }

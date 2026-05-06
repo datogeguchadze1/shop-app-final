@@ -8,6 +8,7 @@ import { FavoriteItem } from '../models';
 @Injectable({ providedIn: 'root' })
 export class FavoritesService {
   private base = `${environment.apiUrl}/favorites`;
+
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<FavoriteItem[]> {

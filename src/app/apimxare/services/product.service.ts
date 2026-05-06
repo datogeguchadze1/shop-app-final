@@ -8,11 +8,11 @@ import { Product, ProductsResponse } from '../models';
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private base = `${environment.apiUrl}/products`;
+
   constructor(private http: HttpClient) {}
 
-  getAll(page = 1, pageSize = 12, sortBy?: string): Observable<ProductsResponse> {
-    let params = new HttpParams().set('Take', pageSize).set('Page', page);
-    if (sortBy) params = params.set('SortBy', sortBy);
+  getAll(page = 1, pageSize = 12): Observable<ProductsResponse> {
+    const params = new HttpParams().set('Take', pageSize).set('Page', page);
     return this.http.get<any>(this.base, { params }).pipe(map(r => this.normalise(r)));
   }
 
@@ -23,20 +23,16 @@ export class ProductService {
   }
 
   search(query: string, page = 1, pageSize = 12): Observable<ProductsResponse> {
-    const params = new HttpParams()
-      .set('query', query)
-      .set('Take', pageSize)
-      .set('Page', page);
+    const params = new HttpParams().set('query', query).set('Take', pageSize).set('Page', page);
     return this.http.get<any>(`${this.base}/search`, { params }).pipe(map(r => this.normalise(r)));
   }
 
   filter(categoryId?: number, minPrice?: number, maxPrice?: number,
-         page = 1, pageSize = 12, sortBy?: string): Observable<ProductsResponse> {
+         page = 1, pageSize = 12): Observable<ProductsResponse> {
     let params = new HttpParams().set('Take', pageSize).set('Page', page);
     if (categoryId)             params = params.set('CategoryId', categoryId);
     if (minPrice !== undefined) params = params.set('MinPrice', minPrice);
     if (maxPrice !== undefined) params = params.set('MaxPrice', maxPrice);
-    if (sortBy)                 params = params.set('SortBy', sortBy);
     return this.http.get<any>(`${this.base}/filter`, { params }).pipe(map(r => this.normalise(r)));
   }
 

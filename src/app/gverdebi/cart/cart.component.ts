@@ -12,16 +12,16 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-cart',
   standalone: true,
   imports: [CommonModule, RouterModule, CurrencyPipe, LoaderComponent, ModalComponent, FormsModule],
-  templateUrl: "./cart.component.html",
-  styleUrl: "./cart.component.scss"
+  templateUrl: './cart.component.html',
+  styleUrl: './cart.component.scss'
 })
 export class CartComponent implements OnInit {
-  cart = signal<Cart | null>(null);
-  loading = signal(true);
-  checkoutOpen = signal(false);
+  cart            = signal<Cart | null>(null);
+  loading         = signal(true);
+  checkoutOpen    = signal(false);
   checkoutLoading = signal(false);
   checkoutSuccess = signal(false);
-  toast = signal('');
+  toast           = signal('');
   address = ''; paymentMethod = 'card';
 
   constructor(private cartSvc: CartService, private userSvc: UserService) {}
@@ -44,10 +44,10 @@ export class CartComponent implements OnInit {
       next: () => {
         this.cart.update(c => c ? {
           ...c,
-          items: c.items.map(i => i.id === item.id
+          items: c.items.map((i: CartItem) => i.id === item.id
             ? { ...i, quantity: qty, totalPrice: i.price * qty }
             : i),
-          totalPrice: c.items.reduce((s, i) =>
+          totalPrice: c.items.reduce((s: number, i: CartItem) =>
             s + (i.id === item.id ? i.price * qty : i.totalPrice), 0)
         } : c);
       },
@@ -61,15 +61,15 @@ export class CartComponent implements OnInit {
         next: () => {
           this.cart.update(c => c ? {
             ...c,
-            items: c.items.filter(i => i.id !== item.id),
+            items: c.items.filter((i: CartItem) => i.id !== item.id),
             totalPrice: c.items
-              .filter(i => i.id !== item.id)
-              .reduce((s, i) => s + i.totalPrice, 0)
+              .filter((i: CartItem) => i.id !== item.id)
+              .reduce((s: number, i: CartItem) => s + i.totalPrice, 0)
           } : c);
           this.cartSvc.cartCount.update(n => Math.max(0, n - 1));
           this.showToast('🗑 ამოიღეს კალათიდან');
         },
-        error: (e) => {
+        error: (e: any) => {
           if (e.status === 404 && id === item.productId && item.id !== item.productId) {
             doRemove(item.id);
           } else {
@@ -90,7 +90,7 @@ export class CartComponent implements OnInit {
         this.cart.set({ items: [], totalPrice: 0 });
         this.cartSvc.cartCount.set(0);
       },
-      error: () => { this.checkoutLoading.set(false); }
+      error: () => this.checkoutLoading.set(false)
     });
   }
 }

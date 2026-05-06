@@ -8,6 +8,7 @@ import { Review, CreateReviewRequest, UpdateReviewRequest } from '../models';
 @Injectable({ providedIn: 'root' })
 export class ReviewService {
   private base = `${environment.apiUrl}/reviews`;
+
   constructor(private http: HttpClient) {}
 
   getByProduct(productId: number): Observable<Review[]> {
@@ -23,8 +24,6 @@ export class ReviewService {
     );
   }
 
-  // POST /api/reviews
-  // Send all possible field name variants so API picks what it needs
   create(body: CreateReviewRequest): Observable<any> {
     return this.http.post<any>(this.base, {
       productId: body.productId,
@@ -35,27 +34,21 @@ export class ReviewService {
     });
   }
 
-  // PUT /api/reviews  body: { reviewId, rate }
   update(body: UpdateReviewRequest): Observable<any> {
-    return this.http.put<any>(this.base, {
-      reviewId: body.id,
-      rate:     body.rating,
-    });
+    return this.http.put<any>(this.base, { reviewId: body.id, rate: body.rating });
   }
 
-  // DELETE /api/reviews/{reviewId}
   delete(reviewId: number): Observable<any> {
     return this.http.delete(`${this.base}/${reviewId}`);
   }
 
   normaliseReview(r: any): Review {
     if (!r) return {} as Review;
-    const user = r.user ?? {};
+    const user      = r.user ?? {};
     const firstName = user.firstName ?? '';
     const lastName  = user.lastName  ?? '';
     const fullName  = (firstName || lastName) ? `${firstName} ${lastName}`.trim() : '';
-    const userName  = r.userName ?? fullName
-                   ?? (user.email ? user.email.split('@')[0] : 'Anonymous');
+    const userName  = r.userName ?? fullName ?? (user.email ? user.email.split('@')[0] : 'Anonymous');
 
     return {
       id:        r.id ?? 0,

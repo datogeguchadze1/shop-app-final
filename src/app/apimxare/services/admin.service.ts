@@ -6,15 +6,13 @@ import { environment } from '../../../apikey/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
-  private base    = `${environment.apiUrl}/admin`;
+  private base     = `${environment.apiUrl}/admin`;
   private prodBase = `${environment.apiUrl}/products`;
   private catBase  = `${environment.apiUrl}/categories`;
-  private userBase = `${environment.apiUrl}/auth`;
 
   constructor(private http: HttpClient) {}
 
-  // ── Auth ──────────────────────────────────────────────
- login (email: string, password: string): Observable<{ token: string }> {
+  login(email: string, password: string): Observable<{ token: string }> {
     return this.http.post<any>(`${this.base}/login`, { email, password }).pipe(
       map(raw => {
         const inner = raw?.data ?? raw;
@@ -29,46 +27,20 @@ export class AdminService {
     return this.http.post(`${this.base}/register`, body);
   }
 
-  // ── Products ──────────────────────────────────────────
   getProducts(page = 1, take = 20): Observable<any> {
     const params = new HttpParams().set('Take', take).set('Page', page);
     return this.http.get<any>(this.prodBase, { params });
   }
 
-  getProductById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.prodBase}/${id}`);
-  }
+  createProduct(data: any): Observable<any>             { return this.http.post(this.prodBase, data); }
+  updateProduct(id: number, data: any): Observable<any> { return this.http.put(`${this.prodBase}/${id}`, data); }
+  deleteProduct(id: number): Observable<any>            { return this.http.delete(`${this.prodBase}/${id}`); }
 
-  createProduct(data: any): Observable<any> {
-    return this.http.post(`${this.prodBase}`, data);
-  }
+  getCategories(): Observable<any>                              { return this.http.get<any>(this.catBase); }
+  createCategory(data: { name: string; description?: string }): Observable<any> { return this.http.post(this.catBase, data); }
+  updateCategory(id: number, data: any): Observable<any>       { return this.http.put(`${this.catBase}/${id}`, data); }
+  deleteCategory(id: number): Observable<any>                   { return this.http.delete(`${this.catBase}/${id}`); }
 
-  updateProduct(id: number, data: any): Observable<any> {
-    return this.http.put(`${this.prodBase}/${id}`, data);
-  }
-
-  deleteProduct(id: number): Observable<any> {
-    return this.http.delete(`${this.prodBase}/${id}`);
-  }
-
-  // ── Categories ────────────────────────────────────────
-  getCategories(): Observable<any> {
-    return this.http.get<any>(this.catBase);
-  }
-
-  createCategory(data: { name: string; description?: string }): Observable<any> {
-    return this.http.post(this.catBase, data);
-  }
-
-  updateCategory(id: number, data: any): Observable<any> {
-    return this.http.put(`${this.catBase}/${id}`, data);
-  }
-
-  deleteCategory(id: number): Observable<any> {
-    return this.http.delete(`${this.catBase}/${id}`);
-  }
-
-  // ── Orders / Users ────────────────────────────────────
   getOrders(page = 1, take = 20): Observable<any> {
     const params = new HttpParams().set('Take', take).set('Page', page);
     return this.http.get<any>(`${environment.apiUrl}/orders`, { params });

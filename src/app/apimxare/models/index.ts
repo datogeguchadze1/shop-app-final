@@ -1,9 +1,7 @@
-// ─── Auth ───────────────────────────────────────────────
-export interface LoginRequest  { email: string; password: string; }
+export interface LoginRequest    { email: string; password: string; }
 export interface RegisterRequest { firstName: string; lastName: string; email: string; password: string; }
-export interface AuthResponse  { token: string; }
+export interface AuthResponse    { token: string; refreshToken?: string; }
 
-// ─── User ────────────────────────────────────────────────
 export interface User {
   id: number;
   firstName: string;
@@ -14,7 +12,6 @@ export interface User {
   details?: { phoneNumber?: string; address?: string; dob?: string; pictureUrl?: string; };
 }
 
-// ─── Category ────────────────────────────────────────────
 export interface Category {
   id: number;
   name: string;
@@ -24,10 +21,9 @@ export interface Category {
   canDelete?: boolean;
 }
 
-// ─── Product ─────────────────────────────────────────────
 export interface Product {
   id: number;
-  stock: number;
+  stock?: number;
   name: string;
   brand?: string;
   model?: string;
@@ -48,7 +44,6 @@ export interface Product {
   specifications?: Record<string, string>;
 }
 
-// ─── Paginated response ───────────────────────────────────
 export interface ProductsResponse {
   items: Product[];
   currentPage: number;
@@ -58,7 +53,6 @@ export interface ProductsResponse {
   hasMore: boolean;
 }
 
-// ─── Cart ─────────────────────────────────────────────────
 export interface CartItem {
   id: number;
   productId: number;
@@ -68,9 +62,9 @@ export interface CartItem {
   quantity: number;
   totalPrice: number;
 }
+
 export interface Cart { items: CartItem[]; totalPrice: number; }
 
-// ─── Favorites ────────────────────────────────────────────
 export interface FavoriteItem {
   id: number;
   productId: number;
@@ -80,7 +74,6 @@ export interface FavoriteItem {
   salePrice?: number;
 }
 
-// ─── Review ───────────────────────────────────────────────
 export interface ReviewUser {
   id: number;
   email?: string;

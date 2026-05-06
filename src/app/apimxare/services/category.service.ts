@@ -12,8 +12,7 @@ export class CategoryService {
   getAll(): Observable<Category[]> {
     return this.http.get<any>(`${environment.apiUrl}/categories`).pipe(
       map(raw => {
-        // Could be bare array or { items: [...] } or { data: [...] }
-        if (Array.isArray(raw)) return raw as Category[];
+        if (Array.isArray(raw))        return raw as Category[];
         if (Array.isArray(raw?.items)) return raw.items as Category[];
         if (Array.isArray(raw?.data))  return raw.data  as Category[];
         return [];

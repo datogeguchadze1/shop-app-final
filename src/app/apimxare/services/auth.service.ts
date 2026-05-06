@@ -8,7 +8,9 @@ import { AuthResponse, LoginRequest, RegisterRequest } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly TOKEN_KEY = 'shop_token';
+  private readonly TOKEN_KEY         = 'shop_token';
+  private readonly REFRESH_TOKEN_KEY = 'shop_refresh_token';
+
   isLoggedIn = signal<boolean>(this.hasToken());
 
   constructor(private http: HttpClient, private router: Router) {}
@@ -16,60 +18,65 @@ export class AuthService {
   login(body: LoginRequest): Observable<AuthResponse> {
     return this.http.post<any>(`${environment.apiUrl}/auth/login`, body).pipe(
       map(raw => {
-        const inner = raw?.data ?? raw;
-        const token = (typeof inner === 'string') ? inner
+        const inner        = raw?.data ?? raw;
+        const token        = typeof inner === 'string' ? inner
           : (inner?.token ?? inner?.accessToken ?? inner?.jwt ?? '');
-        return { token };
+        const refreshToken = inner?.refreshToken ?? inner?.refresh_token ?? '';
+        return { token, refreshToken };
       }),
       tap(res => {
-        if (res.token) { localStorage.setItem(this.TOKEN_KEY, res.token); this.isLoggedIn.set(true); }
+        if (res.token) {
+          localStorage.setItem(this.TOKEN_KEY, res.token);
+          this.isLoggedIn.set(true);
+        }
+        if (res.refreshToken) {
+          localStorage.setItem(this.REFRESH_TOKEN_KEY, res.refreshToken);
+        }
       })
     );
   }
 
-  // Register does NOT auto-login — user must verify email first
   register(body: RegisterRequest): Observable<any> {
     return this.http.post<any>(`${environment.apiUrl}/auth/register`, body);
   }
 
-  // PUT /api/auth/verify-email  body: { email, code }
   verifyEmail(email: string, code: string): Observable<any> {
     return this.http.put<any>(`${environment.apiUrl}/auth/verify-email`, { email, code });
   }
 
-  // POST /api/auth/resend-email-verification/{email}
   resendVerification(email: string): Observable<any> {
     return this.http.post<any>(`${environment.apiUrl}/auth/resend-email-verification/${email}`, {});
   }
 
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     this.isLoggedIn.set(false);
     this.router.navigate(['/']);
   }
 
-  getToken(): string | null { return localStorage.getItem(this.TOKEN_KEY); }
-  hasToken(): boolean { return !!localStorage.getItem(this.TOKEN_KEY); }
+  getToken(): string | null        { return localStorage.getItem(this.TOKEN_KEY); }
+  getRefreshToken(): string | null { return localStorage.getItem(this.REFRESH_TOKEN_KEY); }
+  hasToken(): boolean              { return !!localStorage.getItem(this.TOKEN_KEY); }
 
   getCurrentUserId(): number | null {
-    const token = this.getToken();
-    if (!token) return null;
-    try {
-      const p = JSON.parse(atob(token.split('.')[1]));
-      return p.sub ?? p.userId ?? p.id ?? p.nameid
-          ?? p['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']
-          ?? null;
-    } catch { return null; }
+    const p = this.decodeToken();
+    return p?.sub ?? p?.userId ?? p?.id ?? p?.nameid
+      ?? p?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']
+      ?? null;
   }
 
   getCurrentUserEmail(): string | null {
+    const p = this.decodeToken();
+    return p?.email ?? p?.unique_name
+      ?? p?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']
+      ?? null;
+  }
+
+  private decodeToken(): any {
     const token = this.getToken();
     if (!token) return null;
-    try {
-      const p = JSON.parse(atob(token.split('.')[1]));
-      return p.email ?? p.unique_name
-          ?? p['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']
-          ?? null;
-    } catch { return null; }
+    try { return JSON.parse(atob(token.split('.')[1])); }
+    catch { return null; }
   }
 }

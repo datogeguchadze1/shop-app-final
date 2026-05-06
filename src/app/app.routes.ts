@@ -17,7 +17,6 @@ export const routes: Routes = [
   { path: 'favorites',    loadComponent: () => import('./gverdebi/favorites/favorites.component').then(m => m.FavoritesComponent), canActivate: [authGuard] },
   { path: 'profile',      loadComponent: () => import('./gverdebi/profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },
 
-  /* ── Admin ──────────────────────────────────────────── */
   { path: 'admin/login',  loadComponent: () => import('./gverdebi/admin/admin-login.component').then(m => m.AdminLoginComponent) },
   { path: "admin", loadComponent: () => import("./gverdebi/admin/admin.component").then(m => m.AdminComponent) },
 

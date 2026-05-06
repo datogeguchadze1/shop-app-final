@@ -3,8 +3,7 @@ import { Router } from '@angular/router';
 
 export const adminGuard = () => {
   const router = inject(Router);
-  const token = localStorage.getItem('admin_token');
-  if (token) return true;
+  if (localStorage.getItem('admin_token')) return true;
   router.navigate(['/admin/login']);
   return false;
 };
