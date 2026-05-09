@@ -35,7 +35,13 @@ export class ReviewService {
   }
 
   update(body: UpdateReviewRequest): Observable<any> {
-    return this.http.put<any>(this.base, { reviewId: body.id, rate: body.rating });
+    return this.http.put<any>(this.base, {
+      reviewId: body.id,
+      rate:     body.rating,
+      rating:   body.rating,
+      comment:  body.comment,
+      text:     body.comment,
+    });
   }
 
   delete(reviewId: number): Observable<any> {

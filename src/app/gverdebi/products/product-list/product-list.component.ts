@@ -128,8 +128,11 @@ export class ProductListComponent implements OnInit {
   onAddToCart(productId: number) {
     if (!this.auth.isLoggedIn()) { this.showToast('⚠ გთხოვთ გაიაროთ ავტორიზაცია'); return; }
     this.cartSvc.addToCart(productId).subscribe({
-      next: () => { this.cartSvc.cartCount.update(n => n + 1); this.showToast('🛒 კალათაში დაემატა!'); },
-      error: () => this.showToast('❌ ვერ დაემატა')
+      next: () => { this.showToast('🛒 კალათაში დაემატა!'); },
+      error: (e) => {
+        const msg = e?.error?.message ?? e?.error?.detail ?? e?.message ?? '';
+        this.showToast('❌ ვერ დაემატა' + (msg ? ': ' + msg : ''));
+      }
     });
   }
 

@@ -21,7 +21,9 @@ export class CartService {
   }
 
   addToCart(productId: number, quantity = 1): Observable<any> {
-    return this.http.post(`${this.base}/add-to-cart`, { productId, quantity });
+    return this.http.post(`${this.base}/add-to-cart`, { productId, quantity }).pipe(
+      tap(() => this.cartCount.update(n => n + 1))
+    );
   }
 
   removeFromCart(productId: number): Observable<any> {

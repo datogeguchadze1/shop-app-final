@@ -3,10 +3,14 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CartService } from '../../apimxare/services/cart.service';
 import { UserService } from '../../apimxare/services/user.service';
+import { AuthService } from '../../apimxare/services/auth.service';
 import { Cart, CartItem } from '../../apimxare/models';
 import { LoaderComponent } from '../../saziaro/components/loader/loader.component';
 import { ModalComponent } from '../../saziaro/components/modal/modal.component';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+
+const N8N_WEBHOOK_URL = 'https://dato.app.n8n.cloud/webhook/order-confirmation';
 
 @Component({
   selector: 'app-cart',
@@ -24,7 +28,12 @@ export class CartComponent implements OnInit {
   toast           = signal('');
   address = ''; paymentMethod = 'card';
 
-  constructor(private cartSvc: CartService, private userSvc: UserService) {}
+  constructor(
+    private cartSvc: CartService,
+    private userSvc: UserService,
+    private authSvc: AuthService,
+    private http: HttpClient
+  ) {}
 
   ngOnInit() {
     this.cartSvc.getCart().subscribe({
@@ -85,12 +94,35 @@ export class CartComponent implements OnInit {
     this.checkoutLoading.set(true);
     this.userSvc.checkout({ address: this.address, paymentMethod: this.paymentMethod }).subscribe({
       next: () => {
+        this.sendOrderConfirmationEmail();
+
         this.checkoutSuccess.set(true);
         this.checkoutLoading.set(false);
         this.cart.set({ items: [], totalPrice: 0 });
         this.cartSvc.cartCount.set(0);
       },
       error: () => this.checkoutLoading.set(false)
+    });
+  }
+
+  private sendOrderConfirmationEmail() {
+    const email = this.authSvc.getCurrentUserEmail()
+      ?? localStorage.getItem('user_email')
+      ?? '';
+
+    if (!email) return; 
+
+    const payload = {
+      email,
+      firstName:     localStorage.getItem('user_firstName') ?? '',
+      address:       this.address,
+      paymentMethod: this.paymentMethod,
+      totalPrice:    this.cart()?.totalPrice ?? 0
+    };
+
+    this.http.post(N8N_WEBHOOK_URL, payload).subscribe({
+      next: () => console.log('✅ Webhook sent'),
+      error: (e) => console.warn('⚠️ Webhook failed (checkout still OK):', e)
     });
   }
 }

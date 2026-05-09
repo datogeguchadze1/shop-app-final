@@ -53,7 +53,10 @@ export class RegisterComponent {
     if (!this.verifyCode.trim()) return;
     this.loading.set(true); this.error.set('');
     this.auth.verifyEmail(this.email, this.verifyCode.trim()).subscribe({
-      next: () => { this.loading.set(false); this.step.set('done'); },
+      next: () => {
+        this.loading.set(false);
+        this.step.set('done');
+      },
       error: e => {
         this.error.set(e?.error?.detail ?? e?.error?.message ?? 'Invalid code. Try again.');
         this.loading.set(false);

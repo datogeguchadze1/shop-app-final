@@ -5,12 +5,11 @@ import { AuthService } from '../services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authSvc    = inject(AuthService);
-  const adminToken = localStorage.getItem('admin_token');
+  const adminToken = sessionStorage.getItem('admin_token');
   const userToken  = authSvc.getToken();
   const isAdminReq = req.url.includes('/admin');
 
-  const token = (isAdminReq && adminToken) ? adminToken
-              : (userToken || adminToken || environment.token || '');
+  const token = (isAdminReq && adminToken) ? adminToken : (userToken || '');
 
   const headers: Record<string, string> = {};
   if (token)              headers['Authorization'] = `Bearer ${token}`;

@@ -96,12 +96,12 @@ export class ProductDetailComponent implements OnInit {
   }
 
   addToCart() {
-    if (!this.auth.isLoggedIn() || !this.product()) return;
+    if (!this.auth.isLoggedIn()) { this.showToast('⚠ გთხოვთ გაიაროთ ავტორიზაცია'); return; }
+    if (!this.product()) return;
     this.addingCart.set(true);
     this.cartSvc.addToCart(this.product()!.id, this.qty).subscribe({
       next: () => {
         this.addingCart.set(false);
-        this.cartSvc.cartCount.update(n => n + 1);
         this.showToast('✓ კალათაში დაემატა!');
       },
       error: () => { this.addingCart.set(false); this.showToast('❌ ვერ დაემატა'); }
@@ -109,7 +109,8 @@ export class ProductDetailComponent implements OnInit {
   }
 
   toggleFav() {
-    if (!this.auth.isLoggedIn() || !this.product()) return;
+    if (!this.auth.isLoggedIn()) { this.showToast('⚠ გთხოვთ გაიაროთ ავტორიზაცია'); return; }
+    if (!this.product()) return;
     const id = this.product()!.id;
     if (this.isFav()) {
       this.favSvc.remove(id).subscribe({

@@ -22,7 +22,7 @@ export class AuthService {
         const token        = typeof inner === 'string' ? inner
           : (inner?.token ?? inner?.accessToken ?? inner?.jwt ?? '');
         const refreshToken = inner?.refreshToken ?? inner?.refresh_token ?? '';
-        return { token, refreshToken };
+        return { token, refreshToken } as AuthResponse;
       }),
       tap(res => {
         if (res.token) {

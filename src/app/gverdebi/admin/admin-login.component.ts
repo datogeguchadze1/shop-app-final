@@ -55,7 +55,7 @@ export class AdminLoginComponent {
     this.adminSvc.login(this.email, this.password).subscribe({
       next: res => {
         if (res.token) {
-          localStorage.setItem('admin_token', res.token);
+          sessionStorage.setItem('admin_token', res.token);
           this.router.navigate(['/admin']);
         } else {
           this.error.set('Login failed — no token received');

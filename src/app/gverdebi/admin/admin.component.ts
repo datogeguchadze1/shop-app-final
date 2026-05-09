@@ -136,7 +136,7 @@ export class AdminComponent implements OnInit {
 
   goPage(p: number) { this.prodPage.set(p); this.loadProducts(); }
 
-  logout() { localStorage.removeItem('admin_token'); this.router.navigate(['/admin/login']); }
+  logout() { sessionStorage.removeItem('admin_token'); this.router.navigate(['/admin/login']); }
 
   showToast(msg: string) { this.toast.set(msg); setTimeout(() => this.toast.set(''), 3000); }
 

@@ -8,9 +8,38 @@
   <meta name="description" content="LUXE - Modern e-commerce experience">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" /> 
+  <link rel="stylesheet" href="styles.scss">
 </head>
 <body>
   <app-root></app-root>
+
+
+
+
+<script type="module"> 
+
+  import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js'; 
+
+ 
+
+  createChat({ 
+
+    webhookUrl: 'https://dato.app.n8n.cloud/webhook/a58146b4-d7e3-461f-8d58-afd9e609fa8e/chat',
+   initialMessages: [
+		"გამარჯობა! 👋",
+		'რით შემიძლია დაგეხმაროთ დღეს? 🛍️',
+	],
+	i18n: {
+		en: {
+			title: 'გამარჯობა მე ვარ luxe შოპის დამხმარე ასისტენტი 👋',
+			footer: '',
+			getStarted: 'ახალი ჩატის დაწყება',
+			inputPlaceholder: 'Type your question..',
+		},
+	},
+  }); 
+
+</script> 
 </body>
 </html>
