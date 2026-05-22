@@ -5,7 +5,7 @@
 
   <app-loader *ngIf="loading()"></app-loader>
 
-  <div class="empty" *ngIf="!loading() && (!cart() || cart()!.items.length === 0)">
+  <div class="empty" *ngIf="!loading() && (!cart() || cart()!.items.length === 0) && !checkoutSuccess()">
     <div class="empty-icon">🛒</div>
     <p>Your cart is empty</p>
     <a routerLink="/products" class="btn-shop">Start Shopping</a>
@@ -50,21 +50,53 @@
   <!-- Checkout modal -->
   <app-modal [open]="checkoutOpen()" title="Checkout" (close)="checkoutOpen.set(false)">
     <div class="checkout-form">
-      <div class="field">
-        <label>Delivery Address</label>
-        <input type="text" [(ngModel)]="address" placeholder="123 Main St, City" />
+
+      <!-- ფორმა — checkout-მდე -->
+      <ng-container *ngIf="!checkoutSuccess()">
+        <div class="field">
+          <label>Delivery Address</label>
+          <input type="text" [(ngModel)]="address" placeholder="123 Main St, City" />
+        </div>
+        <div class="field">
+          <label>Payment Method</label>
+          <select [(ngModel)]="paymentMethod">
+            <option value="card">Credit Card</option>
+            <option value="cash">Cash on Delivery</option>
+          </select>
+        </div>
+        <button
+          class="btn-confirm"
+          (click)="placeOrder()"
+          [disabled]="checkoutLoading() || !address.trim()"
+        >
+          {{ checkoutLoading() ? 'Processing…' : 'Place Order' }}
+        </button>
+      </ng-container>
+
+      <!-- Success — checkout-ის შემდეგ -->
+      <div class="success-block" *ngIf="checkoutSuccess()">
+        <div class="success-anim">
+          <svg class="checkmark" viewBox="0 0 52 52">
+            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+            <path class="checkmark-check" fill="none" d="M14 27l8 8 16-16"/>
+          </svg>
+        </div>
+        <h3 class="success-title">შეკვეთა განხორციელდა!</h3>
+        <p class="success-sub">დადასტურების მეილი გამოგეგზავნა.</p>
+
+        <div class="survey-card">
+          <div class="survey-stars">⭐⭐⭐⭐⭐</div>
+          <p class="survey-text">გვითხარი შენი შთაბეჭდილება!</p>
+          <p class="survey-desc">1 წუთი დაგვეხმარება უკეთესი სერვისის შექმნაში.</p>
+          <button class="btn-survey" (click)="openSurvey()">
+            შეფასების ფორმა
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+              <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+        </div>
       </div>
-      <div class="field">
-        <label>Payment Method</label>
-        <select [(ngModel)]="paymentMethod">
-          <option value="card">Credit Card</option>
-          <option value="cash">Cash on Delivery</option>
-        </select>
-      </div>
-      <div class="success-msg" *ngIf="checkoutSuccess()">🎉 Order placed successfully!</div>
-      <button class="btn-confirm" (click)="placeOrder()" [disabled]="checkoutLoading()">
-        {{ checkoutLoading() ? 'Processing…' : 'Place Order' }}
-      </button>
+
     </div>
   </app-modal>
 </div>

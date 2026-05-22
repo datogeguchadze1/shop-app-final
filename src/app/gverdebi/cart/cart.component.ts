@@ -4,13 +4,14 @@ import { RouterModule } from '@angular/router';
 import { CartService } from '../../apimxare/services/cart.service';
 import { UserService } from '../../apimxare/services/user.service';
 import { AuthService } from '../../apimxare/services/auth.service';
-import { Cart, CartItem } from '../../apimxare/models';
+import { Cart, CartItem, User } from '../../apimxare/models';
 import { LoaderComponent } from '../../saziaro/components/loader/loader.component';
 import { ModalComponent } from '../../saziaro/components/modal/modal.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 
-const N8N_WEBHOOK_URL = 'https://dato.app.n8n.cloud/webhook/order-confirmation';
+const N8N_WEBHOOK_URL = 'https://dato123dato123.app.n8n.cloud/webhook/order-confirmation';
+const N8N_SURVEY_URL  = 'https://dato123dato123.app.n8n.cloud/form/3bcd4ff6-0de8-481f-98fa-2eb0cddde50d';
 
 @Component({
   selector: 'app-cart',
@@ -28,6 +29,9 @@ export class CartComponent implements OnInit {
   toast           = signal('');
   address = ''; paymentMethod = 'card';
 
+  private currentUser = signal<User | null>(null);
+  readonly surveyUrl  = N8N_SURVEY_URL;
+
   constructor(
     private cartSvc: CartService,
     private userSvc: UserService,
@@ -39,6 +43,12 @@ export class CartComponent implements OnInit {
     this.cartSvc.getCart().subscribe({
       next: c => { this.cart.set(c); this.loading.set(false); },
       error: () => this.loading.set(false)
+    });
+
+    // firstName-ისთვის getMe() ვიძახებთ
+    this.userSvc.getMe().subscribe({
+      next: u  => this.currentUser.set(u),
+      error: () => {}
     });
   }
 
@@ -95,33 +105,39 @@ export class CartComponent implements OnInit {
     this.userSvc.checkout({ address: this.address, paymentMethod: this.paymentMethod }).subscribe({
       next: () => {
         this.sendOrderConfirmationEmail();
-
         this.checkoutSuccess.set(true);
         this.checkoutLoading.set(false);
         this.cart.set({ items: [], totalPrice: 0 });
         this.cartSvc.cartCount.set(0);
       },
-      error: () => this.checkoutLoading.set(false)
+      error: () => {
+        this.checkoutLoading.set(false);
+        this.showToast('❌ შეკვეთა ვერ განხორციელდა');
+      }
     });
   }
 
-  private sendOrderConfirmationEmail() {
-    const email = this.authSvc.getCurrentUserEmail()
-      ?? localStorage.getItem('user_email')
-      ?? '';
+  openSurvey() {
+    window.open(this.surveyUrl, '_blank');
+  }
 
-    if (!email) return; 
+  private sendOrderConfirmationEmail() {
+    const email = this.authSvc.getCurrentUserEmail() ?? '';
+    if (!email) return;
+
+    // firstName — getMe()-ის response-დან
+    const firstName = this.currentUser()?.firstName ?? '';
 
     const payload = {
       email,
-      firstName:     localStorage.getItem('user_firstName') ?? '',
+      firstName,
       address:       this.address,
       paymentMethod: this.paymentMethod,
       totalPrice:    this.cart()?.totalPrice ?? 0
     };
 
     this.http.post(N8N_WEBHOOK_URL, payload).subscribe({
-      next: () => console.log('✅ Webhook sent'),
+      next: () => console.log('✅ Webhook sent:', payload),
       error: (e) => console.warn('⚠️ Webhook failed (checkout still OK):', e)
     });
   }

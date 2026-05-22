@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../../apimxare/services/product.service';
 import { CategoryService } from '../../../apimxare/services/category.service';
 import { CartService } from '../../../apimxare/services/cart.service';
@@ -43,16 +43,25 @@ export class ProductListComponent implements OnInit {
     private cartSvc:   CartService,
     private favSvc:    FavoritesService,
     private auth:      AuthService,
-    private route:     ActivatedRoute
+    private route:     ActivatedRoute,
+    private router:    Router
   ) {}
 
   ngOnInit() {
     this.catSvc.getAll().subscribe(cats => this.categories.set(cats));
+
     this.route.queryParams.subscribe(params => {
-      if (params['search']) { this.searchProducts(params['search']); return; }
+      if (params['search']) {
+        this.searchProducts(params['search']);
+        return;
+      }
       if (params['category']) this.selectedCategoryId.set(+params['category']);
+      if (params['sort'])     this.sortOrder = params['sort'];
+      if (params['minPrice']) this.minPriceStr = params['minPrice'];
+      if (params['maxPrice']) this.maxPriceStr = params['maxPrice'];
       this.loadProducts();
     });
+
     if (this.auth.isLoggedIn()) {
       this.favSvc.getAll().subscribe(favs =>
         this.favoriteIds.set(new Set(favs.map(f => f.productId)))
@@ -85,8 +94,9 @@ export class ProductListComponent implements OnInit {
     obs.subscribe({
       next: res => {
         let items = res.items ?? [];
-        if (this.sortOrder === 'price_asc')  items = [...items].sort((a, b) => a.price - b.price);
-        if (this.sortOrder === 'price_desc') items = [...items].sort((a, b) => b.price - a.price);
+        if (this.sortOrder === 'price_asc')   items = [...items].sort((a, b) => a.price - b.price);
+        if (this.sortOrder === 'price_desc')  items = [...items].sort((a, b) => b.price - a.price);
+        if (this.sortOrder === 'rating_desc') items = [...items].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
 
         if (this.sortOrder) {
           const start = (this.page() - 1) * this.pageSize;
@@ -118,7 +128,13 @@ export class ProductListComponent implements OnInit {
     });
   }
 
-  selectCategory(id: number | null) { this.selectedCategoryId.set(id); this.page.set(1); this.sidebarOpen.set(false); this.loadProducts(); }
+  selectCategory(id: number | null) {
+    this.selectedCategoryId.set(id);
+    this.page.set(1);
+    this.sidebarOpen.set(false);
+    this.loadProducts();
+  }
+
   applyFilters()  { this.page.set(1); this.sidebarOpen.set(false); this.loadProducts(); }
   onSortChange()  { this.page.set(1); this.loadProducts(); }
   goPage(p: number) { this.page.set(p); this.loadProducts(); window.scrollTo(0, 0); }
